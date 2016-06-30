@@ -39,6 +39,7 @@ public class GovernanceArtifactConfiguration {
     private String pluralLabel;
     private String pathExpression;
     private String lifecycle;
+    private String taxonomy;
     private String groupingAttribute;
     private OMElement uiConfigurations;
     private List<Association> relationships = new LinkedList<Association>();
@@ -440,6 +441,10 @@ public class GovernanceArtifactConfiguration {
         return lifecycle;
     }
 
+    public String getTaxonomy() {
+        return taxonomy;
+    }
+
     /**
      *
      * @param context name of the context which life cycle is needed
@@ -471,6 +476,10 @@ public class GovernanceArtifactConfiguration {
      */
     public void setLifecycle(String lifecycle) {
         this.lifecycle = lifecycle;
+    }
+
+    public void setTaxonomy(String taxonomy) {
+        this.taxonomy = taxonomy;
     }
 
     /**

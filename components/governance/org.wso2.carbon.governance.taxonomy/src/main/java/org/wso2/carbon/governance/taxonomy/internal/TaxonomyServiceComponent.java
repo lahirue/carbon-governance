@@ -21,10 +21,22 @@ package org.wso2.carbon.governance.taxonomy.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.governance.taxonomy.services.TaxonomyService;
-import org.wso2.carbon.governance.taxonomy.services.TaxonomyTreeAPI;
+import org.wso2.carbon.governance.taxonomy.services.StorageProviderImpl;
+import org.wso2.carbon.governance.taxonomy.services.TaxonomyServices;
+import org.wso2.carbon.governance.taxonomy.services.TaxonomyServicesImpl;
+import org.wso2.carbon.governance.taxonomy.services.TenantLoginStorageService;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
+import org.xml.sax.SAXException;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 /**
  * @scr.component name="org.wso2.carbon.governance.taxonomy"
@@ -43,15 +55,74 @@ public class TaxonomyServiceComponent {
      *
      * @param context OSGi component context.
      */
-    protected void activate(ComponentContext context) {
+    protected void activate(ComponentContext context)
+            throws UserStoreException, RegistryException, ParserConfigurationException, SAXException,
+            XPathExpressionException, IOException {
+
         BundleContext bundleContext = context.getBundleContext();
-        bundleContext.registerService(
-                TaxonomyService.class.getName(), new TaxonomyTreeAPI(), null);
+        TenantLoginStorageService tenantLoginStorageService = new TenantLoginStorageService();
+        ServiceRegistration tenantMgtListenerSR = bundleContext
+                .registerService(Axis2ConfigurationContextObserver.class.getName(), tenantLoginStorageService, null);
+
+        if (tenantMgtListenerSR != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Governance Taxonomy Management - TenantLoginStorageService registered");
+            }
+        } else {
+            log.error("Governance Taxonomy Management - TenantLoginStorageService could not be registered");
+        }
+
+        BundleContext taxonomyBundleContext = context.getBundleContext();
+        ServiceRegistration taxonomyManagementService = taxonomyBundleContext
+                .registerService(TaxonomyServices.class.getName(), new TaxonomyServicesImpl(), null);
+
+        if (taxonomyManagementService != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Governance Taxonomy Management - Manager services registered");
+            }
+        } else {
+            log.error("Governance Taxonomy Management - Manager services could not be registered");
+        }
 
         if (log.isDebugEnabled()) {
-            log.debug("Taxonomy bundle is activated");
+            log.debug("Governance Taxonomy Management Service bundle is activated");
         }
+
+        StorageProviderImpl storageProvider = new StorageProviderImpl();
+        try {
+            storageProvider.initializeTaxonomyStorage();
+            if (log.isDebugEnabled()) {
+                log.debug("Governance Taxonomy Management map initialization is success");
+            }
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while getting RealmConfigurations when activating osgi service", e);
+            }
+            log.error("Error occurred while getting RealmConfigurations when activating osgi service");
+        } catch (RegistryException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while getting taxonomy files from registry when activating osgi service", e);
+            }
+            log.error("Error occurred while getting taxonomy files from registry when activating osgi service");
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while parsing taxonomy xml when activating osgi service", e);
+            }
+            log.error("Error occurred while parsing taxonomy xml when activating osgi service");
+        } catch (ParserConfigurationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while building new document for taxonomy when activating osgi service", e);
+            }
+            log.error("Error occurred while building new document for taxonomy when activating osgi service");
+        } catch (SAXException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred parsing taxonomy content stream when activating osgi service", e);
+            }
+            log.error("Error occurred parsing taxonomy content stream when activating osgi service");
+        }
+
     }
+
     /**
      * Method to deactivate bundle.
      *
@@ -62,7 +133,6 @@ public class TaxonomyServiceComponent {
             log.info("taxonomy bundle is deactivated");
         }
     }
-
 
     /**
      * Method to set registry service.
@@ -86,6 +156,48 @@ public class TaxonomyServiceComponent {
             log.debug("Unset Registry service");
         }
         ServiceHolder.setRegistryService(null);
+    }
+
+    /**
+     * Method to set realm service.
+     *
+     * @param realmService service to get tenant data.
+     */
+    protected void setRealmService(RealmService realmService) {
+        log.debug("Setting RealmService for WSO2 Governance Registry migration");
+        ServiceHolder.setRealmService(realmService);
+    }
+
+    /**
+     * Method to unset realm service.
+     *
+     * @param realmService service to get tenant data.
+     */
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Realm service");
+        }
+        ServiceHolder.setRealmService(null);
+    }
+
+    /**
+     * Method to set tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        log.debug("Setting TenantRegistryLoader for WSO2 Governance Registry migration");
+        ServiceHolder.setTenantRegLoader(tenantRegLoader);
+    }
+
+    /**
+     * Method to unset tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        log.debug("Unset Tenant Registry Loader");
+        ServiceHolder.setTenantRegLoader(null);
     }
 
 }
