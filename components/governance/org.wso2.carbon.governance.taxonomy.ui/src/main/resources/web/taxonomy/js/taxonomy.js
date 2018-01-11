@@ -77,7 +77,7 @@ function saveTaxonomy(taxonomyName, isNew, override) {
                 },
                 onFailure: function (transport) {
 
-                    CARBON.showErrorDialog(transport.responseText);
+                    CARBON.showErrorDialog("Error. Please check the syntax");
                 }
             });
         } else {

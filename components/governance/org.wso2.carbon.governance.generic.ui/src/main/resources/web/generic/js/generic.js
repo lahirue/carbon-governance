@@ -59,8 +59,7 @@ function saveRXT(_path,_rxtName) {
 
             onFailure: function(transport) {
                 var responseText = transport.responseText;
-                CARBON.showErrorDialog(org_wso2_carbon_governance_generic_ui_jsi18n["failed.to.save"] +
-                    transport.responseText);
+                CARBON.showErrorDialog(org_wso2_carbon_governance_generic_ui_jsi18n["failed.to.save"]);
             }
         });
 
@@ -83,8 +82,7 @@ function addRXT() {
 
             onFailure: function(transport) {
                 var responseText = transport.responseText;
-                CARBON.showErrorDialog(org_wso2_carbon_governance_generic_ui_jsi18n["failed.to.save"] +
-                        transport.responseText);
+                CARBON.showErrorDialog(org_wso2_carbon_governance_generic_ui_jsi18n["failed.to.save"]);
             }
         });
 

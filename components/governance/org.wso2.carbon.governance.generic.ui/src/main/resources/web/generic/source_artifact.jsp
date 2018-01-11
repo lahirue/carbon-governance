@@ -63,7 +63,7 @@
             resourceServiceClient = new ResourceServiceClient(config, session);
             temp = resourceServiceClient.getTextContent(request);
         } else {
-            temp = "<artifactType type=\"application/vnd.wso2-application+xml\" shortName=\"applications\" singularLabel=\"Enterprise Application\" pluralLabel=\"Enterprise Applications\" hasNamespace=\"false\" iconSet=\"9\">\n"
+            temp = "<artifactType type=\"application/vnd.uop-application+xml\" shortName=\"applications\" singularLabel=\"Enterprise Application\" pluralLabel=\"Enterprise Applications\" hasNamespace=\"false\" iconSet=\"9\">\n"
                     +
                     "    <storagePath>/applications/@{name}/@{overview_version}</storagePath>\n" +
                     "\t<nameAttribute>overview_name</nameAttribute>\n" +

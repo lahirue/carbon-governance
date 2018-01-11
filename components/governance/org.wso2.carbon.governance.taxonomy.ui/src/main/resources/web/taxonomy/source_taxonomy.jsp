@@ -99,7 +99,7 @@
 
     } catch (Exception e){
         response.setStatus(500);
-        CarbonUIMessage uiMsg = new CarbonUIMessage(CarbonUIMessage.ERROR, e.getMessage(), e);
+        CarbonUIMessage uiMsg = new CarbonUIMessage(CarbonUIMessage.ERROR, "Error. Please check the syntax", e);
         session.setAttribute(CarbonUIMessage.ID, uiMsg);
 %>
         <jsp:include page="../admin/error.jsp?<%=e.getMessage()%>"/>
